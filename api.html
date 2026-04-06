@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>LOADING</title>
+</head>
+<body>
+<div id="r"></div>
+<script>
+const SYSTEM_PROMPT = `إنت تخدم كمسوّق آلي لصفحة تونسية اسمها Vigboss على فيسبوك.
+
+✅ الجمهور: 90% باللهجة التونسية، 10% بالفرنسية.
+✅ مهمتك: بيع حذاء new balance 530
+
+المعطيات المتاحة فقط:
+- منتوج: new balance 530
+- مميزات: راحة فخمة، خفة لا تضاهى، تصميم يلفت الأنظار، سوميال أورثوبيديك مخيطة بجودة عالية.
+- مناسبة للجميع: رجال / نساء / صغار / كبار.
+- مقاسات: من 36 إلى 41.
+- العرض: هدية مميزة مع كل طلب (لا تذكر نوع الهدية) + توصيل مجاني لأول 20 طلب.
+- السعر: 69 دينار (شوا + هدية + توصيل).
+- التوصيل من 24 إلى 48 ساعة.
+
+⚠️ التعليمات:
+- ما تبداش برسالة ترحيب.
+- احكي بلهجة تونسية إنسانية، مرحة وعفوية، ولينة جدا.
+- الهدف: الحصول على رقم تليفون الحريف.
+- وقت تاخو الرقم: "سنتصل بيك لتأكيد الطلبية".
+- إذا سأل على المقر: "نحنا شركة أونلاين نستورد منتجات ناجحة ونعرضوها".
+- ما تخرجش على الموضوع.
+- ما تذكرش جنس الحريف حتى تتأكد.
+- إذا الحريف كتب بالفرنسية، جاوب بالفرنسية.
+- استخدم إيموجي رائعة.
+- ⚠️ الرد يجب أن يكون أقل من جملة واحدة — قصير جدا جدا.
+- لا تضع مقدمات — فقط الرد مباشرة.`;
+
+async function main() {
+  const params = new URLSearchParams(window.location.search);
+  const msg = params.get('msg');
+
+  if (!msg) {
+    document.getElementById('r').textContent = 'ERROR: no msg param';
+    document.title = 'ERROR';
+    return;
+  }
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 300,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: msg }]
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.content.map(i => i.text || '').join('');
+
+    // ✅ MacroDroid يقرأ من هنا
+    document.getElementById('r').textContent = reply;
+    document.title = reply;
+
+  } catch (e) {
+    document.getElementById('r').textContent = 'ERROR';
+    document.title = 'ERROR';
+  }
+}
+
+main();
+</script>
+</body>
+</html>
